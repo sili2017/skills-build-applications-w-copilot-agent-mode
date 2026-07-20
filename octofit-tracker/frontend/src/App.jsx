@@ -1,10 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
 import Activities from './components/Activities';
 import Leaderboard from './components/Leaderboard';
 import Teams from './components/Teams';
 import Users from './components/Users';
 import Workouts from './components/Workouts';
-import { getApiBaseUrl } from './lib/apiBase';
+import { getApiBaseUrl, getApiEndpointUrl, getCollectionItems } from './lib/apiBase';
 
 const dashboardCards = [
   {
@@ -125,6 +126,8 @@ function HomePage({ apiBaseUrl }) {
         </aside>
       </section>
 
+      <LiveSnapshot />
+
       <section className="cards-grid mt-4">
         {dashboardCards.map((card) => (
           <article className="glass-panel feature-card" key={card.title}>
@@ -135,6 +138,83 @@ function HomePage({ apiBaseUrl }) {
       </section>
     </>
   );
+}
+
+function LiveSnapshot() {
+  const resources = [
+    { title: 'Activities', endpoint: '/activities/' },
+    { title: 'Leaderboard', endpoint: '/leaderboard/' },
+    { title: 'Teams', endpoint: '/teams/' },
+    { title: 'Users', endpoint: '/users/' },
+    { title: 'Workouts', endpoint: '/workouts/' }
+  ];
+  const [state, setState] = useState({ status: 'loading', items: [] });
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadSnapshot() {
+      try {
+        const entries = await Promise.all(
+          resources.map(async (resource) => {
+            const response = await fetch(getApiEndpointUrl(resource.endpoint), { signal: controller.signal });
+            const payload = await response.json();
+
+            return {
+              ...resource,
+              count: response.ok ? getCollectionItems(payload).length : 0,
+              sample: response.ok ? getCollectionItems(payload)[0] : null
+            };
+          })
+        );
+
+        setState({ status: 'ready', items: entries });
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+
+        setState({ status: 'error', items: [] });
+      }
+    }
+
+    loadSnapshot();
+
+    return () => controller.abort();
+  }, []);
+
+  return (
+    <section className="mt-4">
+      <div className="summary-label">Live data snapshot</div>
+      {state.status === 'loading' ? <p className="text-muted">Loading dashboard data...</p> : null}
+      {state.status === 'error' ? (
+        <div className="glass-panel feature-card mt-3">
+          <h2>Unable to load live data</h2>
+          <p>Check that the backend is running on port 8000 and seeded with OctoFit records.</p>
+        </div>
+      ) : null}
+
+      {state.status === 'ready' ? (
+        <section className="cards-grid mt-3">
+          {state.items.map((resource) => (
+            <article className="glass-panel feature-card" key={resource.title}>
+              <div className="feature-value">{resource.count} records</div>
+              <h2>{resource.title}</h2>
+              <p>{describeSample(resource.sample)}</p>
+            </article>
+          ))}
+        </section>
+      ) : null}
+    </section>
+  );
+}
+
+function describeSample(sample) {
+  if (!sample || typeof sample !== 'object') {
+    return 'No preview available yet.';
+  }
+
+  return sample.fullName || sample.name || sample.title || sample.activityType || 'Preview available from the API.';
 }
 
 function NotFoundPage() {
