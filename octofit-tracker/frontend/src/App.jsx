@@ -1,28 +1,42 @@
 import { Link, NavLink, Route, Routes } from 'react-router-dom';
+import Activities from './components/Activities';
+import Leaderboard from './components/Leaderboard';
+import Teams from './components/Teams';
+import Users from './components/Users';
+import Workouts from './components/Workouts';
 import { getApiBaseUrl } from './lib/apiBase';
 
 const dashboardCards = [
   {
-    title: 'Activity logging',
-    value: 'Fast entry',
-    description: 'Capture workouts, distances, and training time with minimal friction.'
+    title: 'Activities',
+    description: 'Recent workouts and movement logs pulled from the API.'
   },
   {
-    title: 'Team challenges',
-    value: 'Friendly competition',
-    description: 'Build squads, compare points, and keep motivation high all semester.'
+    title: 'Leaderboard',
+    description: 'Individual and team rankings with automatic response-shape handling.'
   },
   {
-    title: 'Workout guidance',
-    value: 'Personalized plans',
-    description: 'Surface suggestions based on recent activity and current fitness goals.'
+    title: 'Teams',
+    description: 'Team rosters and point totals for the semester challenge.'
+  },
+  {
+    title: 'Users',
+    description: 'Student and teacher records returned from MongoDB.'
+  },
+  {
+    title: 'Workouts',
+    description: 'Suggested sessions with fallback support for paginated APIs.'
   }
 ];
 
-const quickFacts = [
-  'Frontend on 5173',
-  'Backend API on 8000',
-  'MongoDB on 27017'
+const quickFacts = ['Frontend on 5173', 'Backend API on 8000', 'MongoDB on 27017'];
+
+const componentRoutes = [
+  { path: '/activities', label: 'Activities' },
+  { path: '/leaderboard', label: 'Leaderboard' },
+  { path: '/teams', label: 'Teams' },
+  { path: '/users', label: 'Users' },
+  { path: '/workouts', label: 'Workouts' }
 ];
 
 function App() {
@@ -46,29 +60,22 @@ function App() {
           <NavLink className="nav-pill" to="/">
             Overview
           </NavLink>
-          <NavLink className="nav-pill" to="/activities">
-            Activities
-          </NavLink>
-          <NavLink className="nav-pill" to="/teams">
-            Teams
-          </NavLink>
-          <NavLink className="nav-pill" to="/workouts">
-            Workouts
-          </NavLink>
+          {componentRoutes.map((route) => (
+            <NavLink key={route.path} className="nav-pill" to={route.path}>
+              {route.label}
+            </NavLink>
+          ))}
         </nav>
       </header>
 
       <main className="container pb-5">
         <Routes>
-          <Route
-            path="/"
-            element={
-              <HomePage apiBaseUrl={apiBaseUrl} />
-            }
-          />
-          <Route path="/activities" element={<FeaturePage title="Activities" />} />
-          <Route path="/teams" element={<FeaturePage title="Teams" />} />
-          <Route path="/workouts" element={<FeaturePage title="Workouts" />} />
+          <Route path="/" element={<HomePage apiBaseUrl={apiBaseUrl} />} />
+          <Route path="/activities" element={<Activities />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/teams" element={<Teams />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/workouts" element={<Workouts />} />
         </Routes>
       </main>
     </div>
@@ -89,7 +96,7 @@ function HomePage({ apiBaseUrl }) {
 
           <div className="hero-actions">
             <Link className="btn btn-primary btn-lg" to="/activities">
-              Explore features
+              Explore activities
             </Link>
             <a className="btn btn-outline-light btn-lg" href={apiBaseUrl} target="_blank" rel="noreferrer">
               API base URL
@@ -112,6 +119,7 @@ function HomePage({ apiBaseUrl }) {
             <li>Express + TypeScript backend</li>
             <li>Mongoose-powered MongoDB access</li>
             <li>Ports reserved for 5173, 8000, and 27017</li>
+            <li>Define VITE_CODESPACE_NAME in .env.local for Codespaces</li>
           </ul>
         </aside>
       </section>
@@ -119,26 +127,12 @@ function HomePage({ apiBaseUrl }) {
       <section className="cards-grid mt-4">
         {dashboardCards.map((card) => (
           <article className="glass-panel feature-card" key={card.title}>
-            <div className="feature-value">{card.value}</div>
             <h2>{card.title}</h2>
             <p>{card.description}</p>
           </article>
         ))}
       </section>
     </>
-  );
-}
-
-function FeaturePage({ title }) {
-  return (
-    <section className="glass-panel feature-page">
-      <div className="eyebrow">Section scaffold</div>
-      <h1>{title}</h1>
-      <p>
-        This route is ready for the next build step: connecting the UI to the backend API and layering in
-        route-specific content.
-      </p>
-    </section>
   );
 }
 
