@@ -65,7 +65,19 @@ function CollectionList({ items }) {
     <div className="collection-grid">
       {items.map((item) => (
         <article className="collection-card" key={item._id || item.id || item.name || item.title}>
-          <pre>{JSON.stringify(item, null, 2)}</pre>
+          <div className="feature-value">{item.points ?? 0} pts</div>
+          <h2>{item.name || 'Unnamed team'}</h2>
+          <p className="collection-summary">{item.motto || 'No motto provided.'}</p>
+          <dl className="collection-details">
+            <div>
+              <dt>Captain</dt>
+              <dd>{item.captain || 'N/A'}</dd>
+            </div>
+            <div>
+              <dt>Members</dt>
+              <dd>{item.memberCount ?? 'N/A'}</dd>
+            </div>
+          </dl>
         </article>
       ))}
     </div>

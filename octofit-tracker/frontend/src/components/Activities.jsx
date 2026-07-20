@@ -65,11 +65,47 @@ function CollectionList({ items }) {
     <div className="collection-grid">
       {items.map((item) => (
         <article className="collection-card" key={item._id || item.id || item.name || item.title}>
-          <pre>{JSON.stringify(item, null, 2)}</pre>
+          <div className="feature-value">{item.activityType || 'Activity'}</div>
+          <h2>{item.userName || 'Unknown athlete'}</h2>
+          <dl className="collection-details">
+            <div>
+              <dt>Duration</dt>
+              <dd>{item.durationMinutes ? `${item.durationMinutes} min` : 'N/A'}</dd>
+            </div>
+            <div>
+              <dt>Distance</dt>
+              <dd>{typeof item.distanceKm === 'number' ? `${item.distanceKm} km` : 'N/A'}</dd>
+            </div>
+            <div>
+              <dt>Calories</dt>
+              <dd>{item.caloriesBurned ? `${item.caloriesBurned} kcal` : 'N/A'}</dd>
+            </div>
+            <div>
+              <dt>Date</dt>
+              <dd>{formatPerformedAt(item.performedAt)}</dd>
+            </div>
+          </dl>
         </article>
       ))}
     </div>
   );
+}
+
+function formatPerformedAt(performedAt) {
+  if (!performedAt) {
+    return 'N/A';
+  }
+
+  const date = new Date(performedAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return 'N/A';
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  }).format(date);
 }
 
 export default Activities;

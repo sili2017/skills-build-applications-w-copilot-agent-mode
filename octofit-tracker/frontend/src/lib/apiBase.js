@@ -1,11 +1,25 @@
 const FALLBACK_API_BASE_URL = 'http://localhost:8000';
 
 // VITE_CODESPACE_NAME should be defined in .env.local when running in Codespaces.
-// When it is missing, the app falls back to localhost so the UI never builds an invalid URL.
+// When it is missing, the app tries to derive the backend host from the current frontend URL.
 export function getApiBaseUrl() {
   const codespaceName = import.meta.env.VITE_CODESPACE_NAME;
 
   if (!codespaceName) {
+    if (typeof window !== 'undefined') {
+      const { hostname } = window.location;
+
+      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+        return FALLBACK_API_BASE_URL;
+      }
+
+      const codespacesHostMatch = hostname.match(/^(.+)-5173\.app\.github\.dev$/);
+
+      if (codespacesHostMatch) {
+        return `https://${codespacesHostMatch[1]}-8000.app.github.dev`;
+      }
+    }
+
     return FALLBACK_API_BASE_URL;
   }
 
