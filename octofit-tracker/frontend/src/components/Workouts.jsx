@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getApiEndpointUrl, getCollectionItems } from '../lib/apiBase';
+import { getApiEndpointUrl, getCollectionItems, getErrorMessage } from '../lib/apiBase';
 
 function Workouts() {
   const [state, setState] = useState({ status: 'loading', items: [], error: '' });
@@ -18,11 +18,15 @@ function Workouts() {
 
         setState({ status: 'ready', items: getCollectionItems(payload), error: '' });
       } catch (error) {
-        if (error.name === 'AbortError') {
+        if (error instanceof Error && error.name === 'AbortError') {
           return;
         }
 
-        setState({ status: 'error', items: [], error: error.message });
+        setState({
+          status: 'error',
+          items: [],
+          error: getErrorMessage(error, 'Unable to load workouts')
+        });
       }
     }
 

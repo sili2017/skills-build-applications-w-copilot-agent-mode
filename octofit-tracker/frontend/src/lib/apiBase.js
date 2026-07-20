@@ -51,3 +51,15 @@ export function getCollectionItems(responseBody) {
 
   return [];
 }
+
+export function getErrorMessage(error, fallbackMessage) {
+  if (error instanceof Error) {
+    return error.message || fallbackMessage;
+  }
+
+  if (typeof error === 'string' && error.trim()) {
+    return error;
+  }
+
+  return fallbackMessage;
+}

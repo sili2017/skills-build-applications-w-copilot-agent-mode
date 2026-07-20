@@ -76,6 +76,7 @@ function App() {
           <Route path="/teams" element={<Teams />} />
           <Route path="/users" element={<Users />} />
           <Route path="/workouts" element={<Workouts />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
     </div>
@@ -133,6 +134,19 @@ function HomePage({ apiBaseUrl }) {
         ))}
       </section>
     </>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <section className="glass-panel feature-page">
+      <div className="eyebrow">Route missing</div>
+      <h1>Page not found</h1>
+      <p>
+        The requested route does not exist yet. Use the navigation above to return to the overview or one of
+        the data sections.
+      </p>
+    </section>
   );
 }
 
